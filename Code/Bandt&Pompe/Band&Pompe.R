@@ -1,8 +1,9 @@
-Bandt.Pompe <- function(series, dimension, delay){
+Bandt.Pompe <- function(elements, dimension, delay, size){
   
   dyn.load("BandtPompe.so")
   
-  probability <- .Call("BandtPompe", series, dimension, delay)
+  probability <- .Call("BandtPompe", elements, dimension, delay, size)
   
   return (probability)
 }
+
