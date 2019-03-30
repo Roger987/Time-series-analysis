@@ -1,0 +1,246 @@
+\documentclass{beamer} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,bm,bbm} 
+\usepackage{amsthm,amsfonts,amssymb}
+\usepackage{outlines}
+\usepackage{times}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usetheme{CambridgeUS}
+\usefonttheme{professionalfonts}
+\usetikzlibrary{arrows,shapes}
+\usepackage{listings}
+
+
+\title[Séries Temporais]{Otimização de Algoritmos de Análise de Séries Temporais Utilizando a Interface \texttt{.Call()}}
+\author[Roger Almeida, Alejandro Frery]{Roger Almeida\inst{1} and  Alejandro Frery\inst{2}}
+
+\institute[UFAL]{\inst{1}Bacharelado em Engenharia da Computação and
+\inst{2}Laboratório de Computação Científica e Análise Numérica}
+
+\date{2 de abril de 2019}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Sumário}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\maketitle
+
+% For every picture that defines or uses external nodes, you'll have to
+% apply the 'remember picture' style. To avoid some typing, we'll apply
+% the style to all pictures.
+\tikzstyle{every picture}+=[remember picture]
+
+% By default all math in TikZ nodes are set in inline mode. Change this to
+% displaystyle so that we don't get small fractions.
+\everymath{\displaystyle}
+
+% Uncomment these lines for an automatically generated outline.
+\begin{frame}{Sumário}
+  \tableofcontents
+\end{frame}
+
+\section{Séries Temporais e Teoria da Informação}
+
+\begin{frame}{Séries Temporais}
+
+Conjuntos de dados obtidos por meio de um processo observacional
+ao longo de um período de tempo.
+
+\vspace{0.8cm}
+
+\textbf{Etapas do processo de análise}
+
+\begin{itemize}
+    \item \textbf{Processo de simbolização de Bandt e Pompe}~\cite{bandt2002permutation}
+    \item\textbf{Histograma de padrões}
+    \item \textbf{Extração de informações}
+    \begin{itemize}
+        \item Entropias
+        \item Distâncias estocásticas
+        \item Complexidade estatística
+    \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{A Simbolização de Bandt \& Pompe}
+
+Dada uma série temporal representada pelo vetor $\bm {X} = (x_1, x_2, \dots, x_N)$ de tamanho $N$ e uma dimensão $D$. Particiona-se a série temporal em $N - D + 1$ vetores de tamanho $D$, onde seus valores serão ordenados e simbolizados de acordo com suas posições no vetor conforme mostra o exemplo a seguir.\\
+\vspace{0.3cm}
+Seja $\bm {X} = (4,3,9,10,6)$ uma série temporal, e considerando $D = 4$ a dimensão. Então temos que $N = 5$, daí formaremos dois padrões, pois $N - D + 1 = 5 - 4 + 1 = 2$:\\
+\begin{itemize}
+    \item$\pi_1 = 2134$, pois $x_2 < x_1 < x_3 < x_4$,
+    \item$\pi_2 = 1423$, pois $x_1 < x_4 < x_2 < x_1$.
+\end{itemize}
+ 
+\end{frame}
+
+\begin{frame}{Distribuição de probabilidade e Teoria da Informação}
+
+Através da simbolização de Bandt \& Pompe podemos extrair a distribuição de probabilidade $p(\pi)$ das $D!$ permutações $\pi$. $p(\pi)$ é dada por:
+
+
+\begin{itemize}
+    \item $p(\pi) = \frac{\# \left\{t| t \leq N - D, (x_1,\dots,x_N)  \hbox{\textit{ has type }} \pi\right\}}{N - D + 1}$.\\
+\end{itemize}
+
+
+E com isso podemos utilizar os descritores da teoria da informação para extrair informações sobre nosso sistema, como a entropia, a distância estocástica e a complexidade estatística.
+
+\end{frame}
+
+\section{Imputação de dados}
+
+\begin{frame}{Qual é o problema?}
+
+Ao introduzirem a ideia de entropia de permutação e o método de simbolização, Bandt \& Pompe assumiram como condição que se $x_i = x_j$, então $i = j$. Mas e houverem repetições?
+
+\end{frame}
+
+\begin{frame}{Solução}
+
+Diversas estratégias foram apresentadas para contornar o problema da repetição de dados, trabalhamos com quatro delas:
+
+\begin{itemize}
+    \item \textbf{Complete Case Imputation};
+    \item \textbf{Time Ordered Imputation};
+    \item \textbf{Random Imputation};
+    \item \textbf{Data Driven Imputation}.~\cite{traversaro2018bandt}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Algoritmos de Imputação de Dados}
+
+\begin{itemize}
+    \item \textbf{Complete Case Imputation}\\
+    Elimina todos os padrões que contém elementos repetidos do cálculo da probabilidade.
+    \item \textbf{Time Ordered Imputation}\\
+    Se $x_{t1} = x_{t2}$ e $t_{1} < t_{2}$ então $x_{t1} < x_{t2}$.
+    \item \textbf{Random Imputation}\\
+    Adiciona-se à probabilidade de cada padrão um peso probabilístico baseado na quantidade de elementos repetidos do padrão.
+    \item \textbf{Data Driven Imputation}\\
+    Adiciona-se à probabilidade de cada padrão uma perturbação extraída de uma distribuição de probabilidade calculada previamente através do método \textit{Complete Case}.
+\end{itemize}
+    
+\end{frame}
+
+\section{\texttt{.Call()} na otimização dos algoritmos de imputação de dados}
+
+\begin{frame}{Qual o problema?}
+
+Os algoritmos em R anteriormente criados para a imputação de padrões de séries temporais se mostraram eficazes e precisos em seus resultados. Porém, tendo em vista que era necessária a análise de diversas séries temporais de tamanho muito grande, os algoritmos possuíam um tempo de execução inviável. Com isso veio a necessidade de um meio de incrementar a velocidade desses algoritmos.
+    
+\end{frame}
+
+\begin{frame}{Solução}
+    
+Uma solução encontrada para o problema da velocidade foi a utilização da interface \texttt{.Call()}~\cite{Speed}, que funciona como uma ponte entre as duas linguagens, possibilitando “chamar” funções escritas em C dentro de um código em R, e assim transmitindo dados entre as duas plataformas.
+    
+\end{frame}
+
+\begin{frame}{Implementação}
+ As seguintes bibliotecas devem ser incluídas: \textit{R.h, Rinternals.h, Rmath.h}. \\
+ \vspace{0.3cm}
+ \includegraphics[width=0.25\columnwidth]{include.png}\\
+ 
+ A função em C é declarada como retornando um tipo \textbf{SEXP}, que significa \textit{Simple EXPression}, todos os dados divididos entre as duas linguagens precisam ser deste tipo, ou seja, todos os dados recebidos pela função em C são desta forma e o array de distribuição de probabilidade criado pela função também assume esse tipo.~\cite{.Call,Extensions}
+ \vspace{0.3cm}
+ \includegraphics[width=01.00\columnwidth]{chamada.png}\\
+     
+\end{frame}
+
+\begin{frame}{Implementação}
+O arquivo .c deve ser compilado com o comando \textit{R CMD SHLIB arquivo.c}, isso gerará um novo arquivo do tipo \textit{.so}.
+\vspace{0.3cm}    
+\includegraphics[width=0.80\columnwidth]{terminal.png}\\
+\vspace{0.3cm}
+\includegraphics[width=0.50\columnwidth]{arquivos.png}\\
+\vspace{0.3cm}
+\end{frame}
+
+\begin{frame}{Implementação}
+
+ No programa em R, esse arquivo \texttt{.so} deve ser carregado através do comando \texttt{dyn.load(arquivo.so)}, em seguida se pode utilizar a função em C através da interface utilizada com \texttt{.Call(função, ...)}, onde após o nome da função são inseridos todos os parâmetros necessários.\\
+
+\begin{figure}[h]
+\includegraphics[scale=0.25]{conversao.png}
+\includegraphics[scale=0.35]{BP.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Resultados}
+
+A velocidade do algoritmo original em R foi comparada com a do algoritmo utilizando C. Os algoritmos implementados e analisados até o momento foram o Complete Case e o Time Ordered. Para calcular o tempo de execução de cada uma foi utilizado o seguinte algoritmo:
+
+\lstinputlisting{code.R}
+
+A variável \texttt{time.taken} nos diz exatamente o tempo levado para executar a função testada.
+    
+\end{frame}
+
+\begin{frame}{Resultados}
+    
+Abaixo segue uma tabela, baseada numa amostra obtida a partir de dez distintas execuções dos programas, comparando os tempos de execução das implementações do Complete Case em cada linguagem:\\
+\vspace{0.3cm}
+
+\begin{tabular}{|c|c|c|c|}
+     \hline
+      & Valor mínimo & Valor máximo & Média\\
+      \hline
+      R & \SI{31.67}{\second} & \SI{34.97}{\second} & \SI{33.05}{\second}\\
+      \hline
+      C & \SI{0.32}{\second} & \SI{0.36}{\second} & \SI{0.33}{\second}\\
+      \hline
+\end{tabular}\\
+\vspace{0.3cm}
+
+Ou seja, tendo como base a média de tempo, é fácil ver que a versão em C é aproximadamente cem vezes mais veloz que a versão em R.
+    
+\end{frame}
+
+\begin{frame}{Resultados}
+    
+Quanto à implementação da Time Ordered, analisando também sua velocidade em ambas as versões, com o mesmo número de amostragem, obtém-se a seguinte tabela:\\
+
+\vspace{0.3cm}
+\begin{tabular}{|c|c|c|c|}
+     \hline
+      & Valor mínimo & Valor máximo & Média\\
+      \hline
+      R & \SI{129.39}{\second} & \SI{142.98}{\second} & \SI{135.42}{\second}\\
+      \hline
+      C & \SI{1.80}{\second} & \SI{1.90}{\second} & \SI{1.84}{\second}\\
+      \hline
+\end{tabular}\\
+\vspace{0.3cm}
+Tal qual o Complete Case, vemos que a velocidade da versão em C do Time Ordered supera em média 75 vezes a versão em R.
+    
+\end{frame}
+
+\begin{frame}{Conclusão}
+    
+Com isto, temos que os algoritmos sendo desenvolvidos em C serão mais vantajosos, pois possuem a mesma precisão mas com superior velocidade, o que facilitará suas aplicações no futuro.
+
+\end{frame}
+
+\begin{frame}{Referências}
+    \bibliographystyle{plain}
+    \tiny\bibliography{ref.bib}
+\end{frame}
+
+\end{document}
