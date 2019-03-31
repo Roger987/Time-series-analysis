@@ -79,9 +79,8 @@ ao longo de um período de tempo.
 
 \begin{frame}{A Simbolização de Bandt \& Pompe}
 
-Dada uma série temporal representada pelo vetor $\bm {X} = (x_1, x_2, \dots, x_N)$ de tamanho $N$ e uma dimensão $D$. Particiona-se a série temporal em $N - D + 1$ vetores de tamanho $D$, onde seus valores serão ordenados e simbolizados de acordo com suas posições no vetor conforme mostra o exemplo a seguir.\\
-\vspace{0.3cm}
-Seja $\bm {X} = (4,3,9,10,6)$ uma série temporal, e considerando $D = 4$ a dimensão. Então temos que $N = 5$, daí formaremos dois padrões, pois $N - D + 1 = 5 - 4 + 1 = 2$:\\
+Dada uma série temporal representada pelo vetor $\bm {X} = (x_1, x_2, \dots, x_N)$ de tamanho $N$ e uma dimensão $D$, particiona-se a série temporal em $N - D + 1$ vetores de tamanho $D$, seus valores são ordenados e simbolizados de acordo com suas posições no vetor conforme mostra o exemplo a seguir:
+Seja $\bm {X} = (4,3,9,10,6)$ uma série temporal, e considerando $D = 4$ a dimensão. Então temos que $N = 5$, daí formaremos dois padrões, pois $N - D + 1 = 5 - 4 + 1 = 2$:
 \begin{itemize}
     \item$\pi_1 = 2134$, pois $x_2 < x_1 < x_3 < x_4$,
     \item$\pi_2 = 1423$, pois $x_1 < x_4 < x_2 < x_1$.
@@ -91,12 +90,11 @@ Seja $\bm {X} = (4,3,9,10,6)$ uma série temporal, e considerando $D = 4$ a dime
 
 \begin{frame}{Distribuição de probabilidade e Teoria da Informação}
 
-Através da simbolização de Bandt \& Pompe podemos extrair a distribuição de probabilidade $p(\pi)$ das $D!$ permutações $\pi$. $p(\pi)$ é dada por:
-
-
-\begin{itemize}
-    \item $p(\pi) = \frac{\# \left\{t| t \leq N - D, (x_1,\dots,x_N)  \hbox{\textit{ has type }} \pi\right\}}{N - D + 1}$.\\
-\end{itemize}
+Através da simbolização de Bandt \& Pompe podemos extrair a distribuição de probabilidade 
+$p(\pi)$ das $D!$ permutações $\pi$:
+$$
+p(\pi) = \frac{\# \left\{t\colon t \leq N - D, (x_1,\dots,x_N)  \text{ has type } \pi\right\}}{N - D + 1}.
+$$
 
 
 E com isso podemos utilizar os descritores da teoria da informação para extrair informações sobre nosso sistema, como a entropia, a distância estocástica e a complexidade estatística.
@@ -107,7 +105,9 @@ E com isso podemos utilizar os descritores da teoria da informação para extrai
 
 \begin{frame}{Qual é o problema?}
 
-Ao introduzirem a ideia de entropia de permutação e o método de simbolização, Bandt \& Pompe assumiram como condição que se $x_i = x_j$, então $i = j$. Mas e houverem repetições?
+Ao introduzirem a ideia de entropia de permutação e o método de simbolização, Bandt \& Pompe assumiram como condição que se $x_i = x_j$, então $i = j$. 
+
+Mas, e houver repetições?
 
 \end{frame}
 
@@ -119,7 +119,7 @@ Diversas estratégias foram apresentadas para contornar o problema da repetiçã
     \item \textbf{Complete Case Imputation};
     \item \textbf{Time Ordered Imputation};
     \item \textbf{Random Imputation};
-    \item \textbf{Data Driven Imputation}.~\cite{traversaro2018bandt}
+    \item \textbf{Data Driven Imputation}~\cite{traversaro2018bandt}.
 \end{itemize}
 
 \end{frame}
@@ -143,7 +143,9 @@ Diversas estratégias foram apresentadas para contornar o problema da repetiçã
 
 \begin{frame}{Qual o problema?}
 
-Os algoritmos em R anteriormente criados para a imputação de padrões de séries temporais se mostraram eficazes e precisos em seus resultados. Porém, tendo em vista que era necessária a análise de diversas séries temporais de tamanho muito grande, os algoritmos possuíam um tempo de execução inviável. Com isso veio a necessidade de um meio de incrementar a velocidade desses algoritmos.
+Os algoritmos em R anteriormente criados para a imputação de padrões de séries temporais se mostraram eficazes e precisos em seus resultados. 
+Porém, tendo em vista que era necessária a análise de diversas séries temporais de tamanho muito grande, os algoritmos demandavam um tempo de execução inviável. 
+Com isso veio a necessidade de um meio de incrementar a velocidade desses algoritmos.
     
 \end{frame}
 
@@ -195,9 +197,10 @@ A variável \texttt{time.taken} nos diz exatamente o tempo levado para executar 
 
 \begin{frame}{Resultados}
     
-Abaixo segue uma tabela, baseada numa amostra obtida a partir de dez distintas execuções dos programas, comparando os tempos de execução das implementações do Complete Case em cada linguagem:\\
+Abaixo segue uma tabela, baseada numa amostra obtida a partir de dez distintas execuções dos programas, comparando os tempos de execução das implementações do Complete Case em cada linguagem:
 \vspace{0.3cm}
 
+%%% ACF Não alinhou pelo ponto decimal
 \begin{tabular}{|c|c|c|c|}
      \hline
       & Valor mínimo & Valor máximo & Média\\
